@@ -149,19 +149,7 @@ type FlowEdgeData = {
   text?: string
 }
 
-/** The flare where a line meets a card: long along the card's side, thin across it. */
-function flare(x: number, y: number, side: Position, color: string, strong: boolean) {
-  const along = side === Position.Left || side === Position.Right
-  const long = strong ? 22 : 14
-  return (
-    <>
-      <ellipse className="edge-flare" cx={x} cy={y} rx={along ? 3 : long} ry={along ? long : 3} fill={color} />
-      <ellipse className="edge-flare-core" cx={x} cy={y} rx={along ? 0.8 : long * 0.55} ry={along ? long * 0.55 : 0.8} />
-    </>
-  )
-}
-
-/** A hairline step path, a port at the start, light where it lands, and moving light under a lens. */
+/** A hairline step path, a port at the start, an arrow at the end, and moving light under a lens. */
 function FlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, markerEnd }: EdgeProps<Edge<FlowEdgeData>>) {
   const look = EDGE_LOOK[data?.kind ?? "base"]
   const lit = data?.lit ?? true
@@ -180,11 +168,9 @@ function FlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targ
   return (
     <>
       <g className={lit ? "edge" : "edge is-dim"}>
-        {lens && <path d={path} className="edge-glow" stroke={lens} />}
         <BaseEdge id={id} path={path} className="edge-line" markerEnd={markerEnd} style={{ stroke, strokeDasharray: look.dash }} />
         {lens && <path d={path} className="edge-flow" stroke={lens} />}
         <circle cx={sourceX} cy={sourceY} r={2.4} className="edge-port" stroke={stroke} />
-        {flare(targetX, targetY, targetPosition, lens ?? stroke, Boolean(lens))}
       </g>
       {data?.text && (
         <EdgeLabelRenderer>

@@ -49,7 +49,6 @@
   --sc-cyan: #3fd8f2;
   --sc-pink: #f472b6;
 
-  --glow: 1;
   --shadow-sm: 0 0 0 1px rgb(0 0 0 / 0.6);
   --shadow-md: 0 12px 32px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(0 0 0 / 0.6);
   --shadow-lg: 0 32px 80px rgb(0 0 0 / 0.75);
@@ -110,7 +109,6 @@
   --sc-cyan: #0891b2;
   --sc-pink: #db2777;
 
-  --glow: 0;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
   --shadow-md: 0 10px 28px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.05);
   --shadow-lg: 0 28px 70px rgb(0 0 0 / 0.18);
@@ -310,7 +308,6 @@ a.badge:hover {
   height: 6px;
   border-radius: 50%;
   background: var(--decision);
-  box-shadow: 0 0 calc(var(--glow) * 8px) var(--decision);
   animation: pulse 2.4s var(--ease) infinite;
 }
 @keyframes pulse {
@@ -488,7 +485,6 @@ a.badge:hover {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  box-shadow: 0 0 calc(var(--glow) * 8px) currentColor;
 }
 .dot-lg {
   width: 9px;
@@ -673,12 +669,6 @@ a.badge:hover {
   transition: stroke var(--dur-slow) var(--ease);
 }
 /* Under a lens, light runs along the path in the scenario's colour. */
-.edge-glow {
-  fill: none;
-  stroke-width: 3;
-  opacity: calc(var(--glow) * 0.35);
-  filter: blur(3px);
-}
 .edge-flow {
   fill: none;
   stroke-width: 1.6;
@@ -690,16 +680,6 @@ a.badge:hover {
   to {
     stroke-dashoffset: -15;
   }
-}
-/* Where a line meets a card it flares, like light hitting an edge. */
-.edge-flare {
-  opacity: calc(0.3 + var(--glow) * 0.55);
-  filter: blur(calc(1px + var(--glow) * 3px));
-}
-.edge-flare-core {
-  fill: var(--edge-lit);
-  opacity: calc(var(--glow) * 0.85);
-  filter: blur(0.4px);
 }
 .edge-port {
   fill: var(--bg-canvas);
@@ -732,7 +712,6 @@ a.badge:hover {
 /* ─── Cards ─────────────────────────────────────────────────────────── */
 
 .card {
-  --tint: var(--fg-secondary);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -745,49 +724,6 @@ a.badge:hover {
     border-color var(--dur) var(--ease),
     box-shadow var(--dur) var(--ease),
     background-color var(--dur) var(--ease);
-}
-/* Corner brackets: drawn outside the card, shown on hover and under a lens. */
-.card::before,
-.card::after {
-  content: "";
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 0 solid var(--tint);
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity var(--dur) var(--ease),
-    transform var(--dur-slow) var(--ease);
-}
-.card::before {
-  top: -6px;
-  left: -6px;
-  border-top-width: 1px;
-  border-left-width: 1px;
-  border-top-left-radius: 14px;
-  transform: translate(3px, 3px);
-}
-.card::after {
-  right: -6px;
-  bottom: -6px;
-  border-right-width: 1px;
-  border-bottom-width: 1px;
-  border-bottom-right-radius: 14px;
-  transform: translate(-3px, -3px);
-}
-.react-flow__node:hover .card::before,
-.react-flow__node:hover .card::after,
-.react-flow__node.is-lit .card::before,
-.react-flow__node.is-lit .card::after {
-  opacity: 0.9;
-  transform: none;
-}
-.react-flow__node.is-lit .card {
-  --tint: var(--lens);
-}
-.react-flow__node:hover .card {
-  --tint: var(--fg-primary);
 }
 
 .card-screen {
@@ -808,9 +744,6 @@ a.badge:hover {
   color: var(--fg-primary);
   cursor: default;
   box-shadow: var(--shadow-sm);
-}
-.react-flow__node.is-lit .card-decision {
-  --tint: var(--decision);
 }
 .card-decision .eyebrow {
   display: inline-flex;
@@ -889,7 +822,6 @@ a.badge:hover {
   padding-inline: 6px;
   font: 700 10px var(--mono);
   color: #120d02;
-  box-shadow: 0 0 calc(var(--glow) * 12px) color-mix(in oklab, var(--decision) 60%, transparent);
 }
 
 /* ─── Lens band: a measured frame around the focused journey ────────── */
@@ -919,7 +851,6 @@ a.badge:hover {
   height: 6px;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 calc(var(--glow) * 8px) currentColor;
 }
 /* Vertex squares and guide lines running past the corners. */
 .band-corner {
