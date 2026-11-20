@@ -1,0 +1,12 @@
+{
+  "name": "auis-ux-flow",
+  "description": "Compiled UX flows: several journeys on one board, shared screens drawn once, one lens per scenario.",
+  "owner": { "name": "Gregorio Pinheiro" },
+  "plugins": [
+    {
+      "name": "auis-ux-flow",
+      "source": "./",
+      "description": "Map several user journeys of a product on one board, in any repository. Writes data files; a single-file viewer renders them."
+    }
+  ]
+}

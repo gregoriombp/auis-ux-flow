@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: viewer/package-lock.json
+
+      - name: Validator accepts the example flow
+        run: node skills/auis-ux-flow/scripts/validate.mjs docs
+
+      - name: Validator tests
+        run: node --test tests/*.test.mjs
+
+      - name: Build the viewer
+        working-directory: viewer
+        run: |
+          npm ci
+          npm run build
+
+      - name: The committed viewer matches the source
+        run: git diff --exit-code -- skills/auis-ux-flow/assets/viewer.html docs/index.html

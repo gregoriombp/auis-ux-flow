@@ -1,0 +1,6 @@
+{
+  "name": "auis-ux-flow",
+  "version": "0.1.0",
+  "description": "Map several user journeys of a product on one board, in any repository. Writes data files; a single-file viewer renders them.",
+  "license": "MIT"
+}
