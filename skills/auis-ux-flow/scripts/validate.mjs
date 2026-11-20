@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Validates a ux-flows folder: the manifest (flows.js), every <slug>.flow.js
-// it lists, and the viewer copy. Zero dependencies.
+// it lists, and that the viewer (index.html) is there. Zero dependencies.
 //
 //   node validate.mjs [dir]        dir defaults to ./ux-flows
 //

@@ -1,8 +1,9 @@
+import { PALETTE } from "../../skills/auis-ux-flow/scripts/flow-rules.mjs"
 import type { Flow } from "./types"
 
 /** Named scenario colors. The values live in styles.css so they follow the theme. */
-const NAMED = new Set(["blue", "emerald", "purple", "teal", "lime", "slate", "pink"])
-const ORDER = ["blue", "emerald", "purple", "teal", "lime", "slate", "pink"]
+const NAMED = new Set(PALETTE)
+const ORDER = PALETTE
 
 export function scenarioColor(flow: Flow, id: string): string {
   const index = flow.scenarios.findIndex((s) => s.id === id)

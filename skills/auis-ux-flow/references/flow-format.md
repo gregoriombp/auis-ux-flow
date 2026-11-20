@@ -107,7 +107,7 @@ A flow is one JavaScript file, `ux-flows/<slug>.flow.js`, that calls `AuisUxFlow
 |---|---|---|
 | `id` | yes | Kebab-case, unique. `all` is reserved. |
 | `label` | yes | Shown on the lens chip and the band. Keep it short: verb + object. |
-| `color` | no | A palette name: `blue`, `emerald`, `purple`, `teal`, `lime`, `slate`, `pink` (use in this order), or any CSS color. Omitted: assigned by position. Never amber, orange, yellow or red. |
+| `color` | no | A palette name: `blue`, `emerald`, `purple`, `lime`, `slate`, `cyan`, `pink` (use in this order; pink last, because cross edges are pink), or any CSS color. Omitted: assigned by position. Never amber, orange, yellow or red. |
 | `summary` | recommended | One line, shown under "Compiled scenarios". |
 
 The array order is the chip order and the tour order.
@@ -123,15 +123,15 @@ The array order is the chip order and the tour order.
 |---|---|---|
 | `id` | yes | Kebab-case, semantic, **permanent**. `band` is reserved. |
 | `type` | no | `"screen"` (default) or `"decision"`. |
-| `x`, `y` | yes | Top-left corner in pixels. Cards are 216 wide and about 100 to 130 tall. |
+| `x`, `y` | yes | Top-left corner in pixels. Cards are 216 wide; about 100 tall when plain, up to 180 with a note, a route and states. |
 | `title` | yes | The screen's name, or the decision's question in short form. |
 | `scenarios` | yes | Every scenario that passes through this card. Two or more = a shared card. |
 | `step` | no | Small label above the title: `entry`, `guest · 01`, `shared`, `end`. |
 | `note` | no (screens) | One line under the title. |
 | `question` | recommended (decisions) | What the gate checks, in a sentence. |
 | `href` | no | The screen's route. Opens in the side panel when the card is clicked. `#` or omitted: no preview. |
-| `variants` | no | `[{ label, href }]`: several states of ONE screen, each with its own URL. The panel shows one tab per variant; the first is the default. |
-| `route` | no | A route or surface shown as text on the card, for screens that cannot be previewed (native app, another repo, blocks embedding). |
+| `variants` | no | `[{ label, href }]`: several states of ONE screen, each with its own URL. The panel shows one tab per variant; the first is the default. The card shows the count ("3 states"). |
+| `route` | no | A route or surface shown as text on the card, for screens that cannot be previewed: a dynamic route with no known id (`/orders/[id]`), a native app, another repo, a site that blocks embedding. |
 | `states` | no | Names of states with no URL of their own, shown as text on the card. |
 
 Clicking a `screen` opens its preview. A `decision` has no preview.
@@ -149,8 +149,8 @@ Clicking a `screen` opens its preview. A `decision` has no preview.
 | `fromSide`, `toSide` | no | `top`, `bottom`, `left` or `right`: the side the edge leaves and enters. Defaults follow `direction`: `down` leaves the bottom and enters the top; `right` leaves the right and enters the left. |
 | `kind` | no | `base` (default, grey): ordinary step. `branch` (amber): leaves a decision. `cross` (pink, dashed): a jump into another scenario's territory, or a loop back. |
 | `label` | no | Under 28 characters. Required in practice on edges leaving a decision. |
-| `offset` | no | Pixels the line travels before its first bend. Raise it to separate two lines that would overlap. |
-| `scenarios` | no | Overrides which lenses light the edge. By default an edge is lit for the scenarios **both** of its cards list. Set this only when an edge belongs to fewer scenarios than its two cards share. |
+| `offset` | no | How far the line runs straight out of a card before it turns (default about 20). Raise it to separate two lines that would overlap. On an edge that leaves and enters through the same side (a U-turn), it is how far the loop sticks out: raise it until the loop clears the cards in between. |
+| `scenarios` | no | Overrides which lenses light the edge. By default an edge is lit for the scenarios **both** of its cards list. Set it in two cases: the edge belongs to fewer scenarios than its cards share; or it is a `cross` edge into another scenario's territory, whose cards share none (list the journey that makes the jump). |
 
 ## Docs: shared and gaps
 
@@ -165,7 +165,7 @@ Both are lists of `{ title, body }`.
 { date: "2026-01-15", summary: "Added the gift-card scenario; it joins at payment.", tags: ["new-scenario"] }
 ```
 
-`date` is `YYYY-MM-DD`. `summary` is one sentence about the journey, not about the file. Tags: `created`, `new-scenario`, `removed-scenario`, `new-screen`, `removed-screen`, `new-branch`, `rework`. Text, link and position changes get no entry.
+`date` is `YYYY-MM-DD`. `summary` is one sentence about the journey, not about the file. Keep the newest entry first: the viewer sorts by date and keeps the file's order within a day. Tags: `created`, `new-scenario`, `removed-scenario`, `new-screen`, `removed-screen`, `new-branch`, `rework`. Text, link and position changes get no entry.
 
 ## The manifest
 

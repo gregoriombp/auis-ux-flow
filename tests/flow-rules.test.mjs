@@ -77,6 +77,33 @@ test("overlapping cards and reserved colors are warnings", () => {
   assert.match(warnings, /color "red" is reserved/)
 })
 
+test("a straight edge through a third card is reported", () => {
+  const flow = example()
+  const editor = flow.nodes.find((n) => n.id === "workspace-editor")
+  flow.nodes.find((n) => n.id === "notify-members").x = editor.x - 320 // now sits between the gate and the editor's lane
+  flow.nodes.find((n) => n.id === "notify-members").y = editor.y
+  flow.edges.push({ id: "skip", from: "d-exists", to: "workspace-editor" })
+  assert.match(messages(flow).warnings, /edge "skip" .*runs straight through card "notify-members"/)
+})
+
+test("a card dragged far from its lane makes the band cover other journeys", () => {
+  const flow = example()
+  const builder = flow.nodes.find((n) => n.id === "template-builder")
+  builder.x = 1600
+  builder.y = 900
+  assert.match(messages(flow).warnings, /scenario "template": its band would cover \d+ cards of other scenarios/)
+})
+
+test("tall cards count as tall when checking overlap", () => {
+  const flow = example()
+  const a = flow.nodes.find((n) => n.id === "workspace-overview")
+  a.route = "/workspaces/[id]"
+  a.states = ["archived", "read only", "over quota", "pending transfer"]
+  flow.nodes.push({ id: "below", x: a.x, y: a.y + 120, title: "Below", scenarios: ["adjust"] })
+  flow.edges.push({ from: "workspace-overview", to: "below", fromSide: "bottom", toSide: "top" })
+  assert.match(messages(flow).warnings, /nodes "workspace-overview" and "below" overlap/)
+})
+
 test("a decision needs two labelled branch exits", () => {
   const flow = example()
   flow.edges = flow.edges.filter((e) => e.id !== "exists-yes")

@@ -23,7 +23,19 @@ function write(k: string, value: unknown): boolean {
 
 export const readNotes = (slug: string) => read<Notes>(key("notes", slug), {})
 export const writeNotes = (slug: string, notes: Notes) => write(key("notes", slug), notes)
-export const readPositions = (slug: string) => read<Positions>(key("layout", slug), {})
+/**
+ * Dragged positions, minus the stale ones: when the flow file has since moved
+ * a card (the agent applied the layout, or re-laid the board), the file wins.
+ */
+export function readPositions(flow: Flow): Positions {
+  const stored = read<Positions>(key("layout", flow.slug), {})
+  const fresh: Positions = {}
+  for (const n of flow.nodes) {
+    const p = stored[n.id]
+    if (p && p.fx === n.x && p.fy === n.y) fresh[n.id] = p
+  }
+  return fresh
+}
 export const writePositions = (slug: string, positions: Positions) => write(key("layout", slug), positions)
 
 export function readTheme(): "light" | "dark" {
@@ -47,7 +59,7 @@ export function notesForAgent(flow: Flow, notes: Notes, positions: Positions): s
   const lines: string[] = [
     `UX flow notes for "${flow.title}" (ux-flows/${flow.slug}.flow.js)`,
     "",
-    "Apply these with the auis-ux-flow skill: update the flow file, add a changelog entry, run the validator.",
+    "Apply these with the auis-ux-flow skill: update the flow file, add a changelog entry if the journey changed, run the validator.",
   ]
   const noted = flow.nodes.filter((n) => notes[n.id]?.length)
   if (noted.length) {

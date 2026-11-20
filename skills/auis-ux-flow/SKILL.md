@@ -41,6 +41,8 @@ Use it when the value is in **seeing two or more journeys at once**: "create a w
 
 You need: which journeys (2 to 6), and for which region of the product. Take them from the request; infer the rest from the code. Ask only if the journeys themselves are unclear.
 
+When the request is open ("the main journeys"), pick the ones a person actually lives through and that **share screens**: getting in (sign up, sign in), the core task, the recurring task. Leave out admin and internal tools, and say in your report what you left out.
+
 ### 2. Read the product before drawing it
 
 Find the real screens. Do not invent any.
@@ -52,9 +54,11 @@ Find the real screens. Do not invent any.
 
 If a journey needs a screen that does not exist yet, keep the card and say so in its `note` ("not built yet"), and list it under `gaps`.
 
+Things that are not screens (a redirect that sets a cookie, an auth callback, a webhook) do not become cards: they are the **label of the edge** between the two screens they connect.
+
 ### 3. Do the merge analysis
 
-This is the whole job. Before writing any file, show the person a merge table:
+This is the whole job. Before writing any file, write the merge table and include it in your reply. It is there so the person can see the reasoning; do not stop to wait for approval unless the journeys themselves are in doubt.
 
 ```
 Card                 | create | adjust | template | shared?
@@ -68,6 +72,12 @@ Template builder     |        |        | yes      | 1 dot
 
 For each scenario write its path end to end, then: mark the screens more than one scenario touches (these become single cards), list the gates, the convergences, and any place where one scenario continues into another's territory. A flow with no shared card is not a compiled view: recheck the dedup.
 
+Judgement calls, decided:
+
+- **Same screen = same route.** Two routes that render the same component are two cards when the person is somewhere different (other data, other purpose); say so in `shared`.
+- **A gate every journey passes** (a session check, a paywall) lists every scenario.
+- **A gate needs two real exits.** If one answer means "nothing changes, stay here", it is not a gate on the map: describe the condition in the card's `note` or `states`.
+
 ### 4. Lay it out
 
 Pick `direction` (`"right"` suits most products and wide screens), give each scenario-specific stretch its own lane, and put shared cards on a trunk between the lanes. Numbers and patterns are in [references/layout.md](references/layout.md).
@@ -79,9 +89,11 @@ Follow [references/flow-format.md](references/flow-format.md). The parts that ar
 - **Wrap the file in a block** (`{` first line, `}` last). All flow files load into one shared scope; without the braces, constants in two files collide and one flow never appears.
 - **`scenarios` on every card is the contract.** List every scenario that passes through the card. An edge lights up under a lens only when both of its cards list that scenario, so one missing id makes the path look broken.
 - **Ids are permanent.** Kebab-case, semantic (`workspace-editor`, never `n3`). The viewer keys notes and dragged positions to them; renaming an id orphans both.
-- **`href` is a real route.** Relative to `baseUrl` (the address the app runs at locally, e.g. `http://localhost:3000`). Find the port in the dev script or the framework default; ask if you cannot tell. For a dynamic route use an id that exists in seed or demo data. No secrets or tokens in URLs: this file is committed.
+- **`href` is a real route.** Relative to `baseUrl` (the address the app runs at locally, e.g. `http://localhost:3000`). Find the port in the README or the dev script, else the framework default. For a dynamic route use an id that exists in seed or demo data; when there is none, leave `href` out and show the pattern as `route` (`/orders/[id]`).
+- **Previews must be safe to open.** Never use a URL that does something when loaded (sends, pays, deletes, spends a credit), and no secrets or tokens: this file is committed.
 - **States:** if a state has its own URL (`?state=empty`, `/checkout/error`), add it under `variants` so the card opens it. If it does not, name it under `states` (text only).
-- **Edges leaving a decision** are `kind: "branch"` and labelled with the answer. A jump into another scenario's territory, or a loop back, is `kind: "cross"`.
+- **Edges leaving a decision** are `kind: "branch"` and labelled with the answer.
+- **A jump into another scenario's territory, or a loop back**, is `kind: "cross"` (also when it leaves a decision). Its two cards usually share no scenario, so give the edge its own `scenarios`: the journey that makes the jump. It then lights under that lens even though the card it lands on stays dim.
 - **Docs are part of the deliverable:** a one-line `summary` per scenario, the `shared` ledger (each shared card and why it is one card), and `updates` seeded with a `"created"` entry dated today.
 
 ### 6. Put the viewer and the manifest in place
@@ -94,21 +106,28 @@ Follow [references/flow-format.md](references/flow-format.md). The parts that ar
 window.AUIS_UX_FLOWS = ["checkout"]
 ```
 
-Never edit `index.html` by hand: it is a build artifact.
+Never edit `index.html` by hand: it is a build artifact. The whole `ux-flows/` folder is meant to be committed, viewer included (one file, under 500 KB), so anyone on the team can open the map.
 
 ### 7. Validate — required
 
+Run the validator that ships with this skill, from the project root, with the path to wherever this skill is installed:
+
 ```bash
-node scripts/validate.mjs path/to/ux-flows
+node .claude/skills/auis-ux-flow/scripts/validate.mjs ux-flows
 ```
 
-(`scripts/validate.mjs` is in this skill's directory; pass the project's `ux-flows` folder.) Fix every **error**. Fix every **warning** too, or tell the person which one you are leaving and why: warnings are the cases where the flow renders but misleads (a card cut off from its lens, an edge that never lights up, overlapping cards, a decision with one exit).
+Fix every **error**. Fix every **warning** too, or tell the person which one you are leaving and why: warnings are the cases where the flow renders but misleads (a card cut off from its lens, an edge that never lights up, overlapping cards, an edge through a card, a band that covers other journeys, a decision with one exit).
 
-If you can open a browser, open `ux-flows/index.html`, switch each lens, and check that every lens shows one connected path with a compact band.
+The validator cannot see everything: lines that cross, or that share a stretch, only show on screen. If you can open a browser, look at each lens through its link, `ux-flows/index.html#/<slug>?focus=<scenario-id>`, and check for one connected path, a compact band, and no line through a card. Some agent browsers refuse `file://` pages: serve the folder with any static server instead.
 
 ### 8. Hand over
 
-Tell the person: the file to open (`ux-flows/index.html`), that card previews need their app running at `baseUrl`, and that they can leave notes on cards in **Comment** mode and paste them back to you with **Copy for agent**.
+Tell the person:
+
+- the file to open: `ux-flows/index.html` (a double-click works);
+- that card previews need their app running at `baseUrl`;
+- that screens behind a login open signed out in the panel when the viewer is opened from disk, because the browser does not send the app's session to a page embedded from elsewhere. Serving `ux-flows/` from the app itself (its static or public folder) fixes that; "Open in a new tab" always works;
+- that they can leave notes on cards in **Comment** mode, drag cards, and paste both back to you with **Copy for agent**.
 
 ## Update a flow
 
@@ -121,10 +140,10 @@ Read the flow file first. Then classify the change:
 | A screen card added | `new-screen` |
 | A screen card removed | `removed-screen` |
 | A decision or a branch added | `new-branch` |
-| Shared card split or merged, convergence moved, edges rewired | `rework` |
+| Shared card split or merged, convergence moved, edges rewired with no new card | `rework` |
 | Only labels, notes, hrefs, variants or positions changed | no entry |
 
-Apply it, keeping ids stable; when a card is removed, remove its edges and check that each scenario that used it is still connected. Prepend an entry to `updates` (today's date, one sentence saying what changed in the journey, the tags above). Update `summary`, `shared` and `gaps` if the change touched them. Run the validator.
+Apply it, keeping ids stable; when a card is removed, remove its edges and check that each scenario that used it is still connected. Put a new entry **first** in `updates` (today's date, one sentence saying what changed in the journey, the tags above). Update `summary`, `shared` and `gaps` if the change touched them. Run the validator.
 
 ### Notes pasted from the viewer
 
@@ -138,17 +157,17 @@ A block that starts with `UX flow notes for "…"` comes from **Copy for agent**
 ```
 
 - Each note is anchored to a card id. Decide what it asks for: a missing state (a variant or a new card), a wrong edge, a missing gate, a question for the person. Apply what is clear; ask about what is not. Do not turn a note into a card just because it exists.
-- Moved cards: write the new `x` and `y` into the flow file. That is a position change: no changelog entry.
-- When done, tell the person which notes you applied and that they can clear them in the viewer (**Copy for agent → Clear notes and layout**).
+- Moved cards: write the new `x` and `y` into the flow file, then check the card's edges still leave and enter through sensible sides, and run the validator: a card dragged far from its lane makes the scenario's band cover other journeys. If a move breaks the layout, say so instead of applying it blindly. Positions alone are no changelog entry, whatever the pasted block says.
+- When done, tell the person which notes you applied and that they can clear them in the viewer (**Copy for agent → Clear notes and layout**). A position saved in their browser stops applying on its own once the flow file moves that card.
 
 ## Rules that keep the map honest
 
 - One screen, one card. Two scenarios on the same screen means one card listing both, never two cards.
 - A scenario's cards stay together: its own lane plus the trunk. Scattered members make the band swallow other lanes.
-- Colors: use the palette order (`blue`, `emerald`, `purple`, `teal`, `lime`, `slate`, `pink`). Never amber, orange or red: amber is the decision language, red reads as an error.
+- Colors: use the palette order (`blue`, `emerald`, `purple`, `lime`, `slate`, `cyan`, `pink`). Never amber, orange or red: amber is the decision language, red reads as an error.
 - More than 6 scenarios: split into two flows.
 - Edge labels under 28 characters; leave ordinary step-to-step edges unlabelled.
-- English, sentence case, no emoji, unless the product's own language is another: then write the flow in that language.
+- Write titles, labels, notes, docs and the changelog in the product's own language (the language of its UI), sentence case, no emoji. Ids, slugs and changelog tags stay in English; the viewer's own chrome is English.
 
 ## Common mistakes
 

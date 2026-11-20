@@ -91,6 +91,7 @@ node path/to/skills/auis-ux-flow/scripts/validate.mjs ux-flows
 
 - Card positions are chosen by the agent and adjustable by drag. There is no auto-layout.
 - Screen previews need your app running at the flow's `baseUrl`, and an app that allows being embedded. When it does not, the panel's "Open in a new tab" still works.
+- Screens behind a login open signed out in the panel when the viewer is opened from disk: browsers do not send an app's session to a page embedded from elsewhere. Serve `ux-flows/` from the app itself (its public or static folder) to preview them signed in.
 - Notes and dragged positions live in your browser until you copy them to the agent.
 - The validator needs Node 18 or newer. The viewer needs only a current browser.
 

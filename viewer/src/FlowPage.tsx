@@ -36,7 +36,7 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
   const { flow, errors, warnings } = loaded
   const [focus, setFocus] = useState<Focus>(() => initialFocus(flow))
   const [notes, setNotes] = useState<Notes>(() => readNotes(flow.slug))
-  const [positions, setPositions] = useState<Positions>(() => readPositions(flow.slug))
+  const [positions, setPositions] = useState<Positions>(() => readPositions(flow))
   const [preview, setPreview] = useState<{ node: FlowNode; variant: number } | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [noting, setNoting] = useState<FlowNode | null>(null)

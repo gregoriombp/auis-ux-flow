@@ -13,7 +13,7 @@ import {
   type NodeProps,
   type ReactFlowInstance,
 } from "@xyflow/react"
-import { CARD, edgeScenarios } from "../../skills/auis-ux-flow/scripts/flow-rules.mjs"
+import { CARD, cardHeight, edgeScenarios } from "../../skills/auis-ux-flow/scripts/flow-rules.mjs"
 import { Icon } from "./icons"
 import { scenarioColor, scenarioLabel } from "./palette"
 import type { Flow, FlowNode, Focus, Notes, Positions, Side } from "./types"
@@ -188,7 +188,7 @@ export function Canvas({
     /* Band: bounding box of the focused scenario's cards, where they are now. */
     const members = flow.nodes.filter((n) => n.scenarios.includes(focus))
     if (members.length === 0) return cards
-    const boxes = members.map((n) => ({ ...place(n), w: sizes[n.id]?.width ?? CARD.w, h: sizes[n.id]?.height ?? CARD.h }))
+    const boxes = members.map((n) => ({ ...place(n), w: sizes[n.id]?.width ?? CARD.w, h: sizes[n.id]?.height ?? cardHeight(n) }))
     const minX = Math.min(...boxes.map((b) => b.x)) - BAND_PAD
     const minY = Math.min(...boxes.map((b) => b.y)) - BAND_PAD_TOP
     const width = Math.max(...boxes.map((b) => b.x + b.w)) + BAND_PAD - minX
@@ -240,13 +240,16 @@ export function Canvas({
       for (const ch of changes) {
         if (ch.type !== "position" && ch.type !== "dimensions") continue
         if (ch.id === "band") continue
-        if (ch.type === "position" && ch.position) moved = { ...moved, [ch.id]: { x: Math.round(ch.position.x), y: Math.round(ch.position.y) } }
+        const card = nodeById.get(ch.id)
+        if (ch.type === "position" && ch.position && card) {
+          moved = { ...moved, [ch.id]: { x: Math.round(ch.position.x), y: Math.round(ch.position.y), fx: card.x, fy: card.y } }
+        }
         if (ch.type === "dimensions" && ch.dimensions) measured[ch.id] = ch.dimensions
       }
       if (moved !== positions) onPositionsChange(moved)
       if (Object.keys(measured).length) setSizes((prev) => ({ ...prev, ...measured }))
     },
-    [positions, onPositionsChange],
+    [positions, onPositionsChange, nodeById],
   )
 
   /* Fullscreen: re-fit on enter and exit, Escape to leave (unless a dialog owns Escape). */

@@ -17,12 +17,26 @@ export const UPDATE_TAGS = [
 ]
 
 /** Named scenario colors, in the order to hand them out. */
-export const PALETTE = ["blue", "emerald", "purple", "teal", "lime", "slate", "pink"]
+export const PALETTE = ["blue", "emerald", "purple", "lime", "slate", "cyan", "pink"]
 /** Reserved: amber is the decision language, red reads as an error. */
 export const RESERVED_COLORS = ["amber", "yellow", "orange", "red"]
 
-/** Footprint used for overlap checks and the focus band (px). */
+/** Card width, and the height of a plain card (px). */
 export const CARD = { w: 216, h: 104 }
+
+const wrapped = (text, perLine) => Math.max(1, Math.ceil(String(text ?? "").length / perLine))
+
+/** Roughly how tall a card renders, from what it carries. Cards with a route and states run to 180px. */
+export function cardHeight(node) {
+  let h = 24 + wrapped(node.title, 26) * 18
+  if (node.type === "decision") return h + 18 + (isText(node.question) ? wrapped(node.question, 36) * 16 : 0)
+  if (isText(node.step)) h += 16
+  if (isText(node.note)) h += wrapped(node.note, 36) * 16
+  if (isText(node.route)) h += 20
+  if (isList(node.states) && node.states.length) h += wrapped(node.states.join(" · "), 34) * 15
+  if (isList(node.variants) && node.variants.length > 1) h += 17
+  return h
+}
 
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -171,7 +185,7 @@ export function checkFlow(flow) {
       touched.add(e.to)
       outgoing.set(e.from, [...(outgoing.get(e.from) ?? []), e])
       if (edgeScenarios(e, nodeById).length === 0) {
-        warn(`${at} (${e.from} → ${e.to}): its two cards share no scenario, so it stays dim under every lens. Fix the cards' \`scenarios\`, or give the edge its own \`scenarios\`.`)
+        warn(`${at} (${e.from} → ${e.to}): its two cards share no scenario, so it stays dim under every lens. If both cards are on the same journey, fix their \`scenarios\`. If the edge is a jump into another journey's territory, give the edge its own \`scenarios\` (the journey that makes the jump).`)
       }
       if (isText(e.label) && e.label.length > 28) warn(`${at}: label "${e.label}" is long (${e.label.length} characters) and will run over the cards. Keep edge labels under 28 characters.`)
       if (from.type === "decision") {
@@ -216,11 +230,50 @@ export function checkFlow(flow) {
     }
 
     /* Overlapping cards. */
-    for (let i = 0; i < flow.nodes.length; i++) {
-      for (let j = i + 1; j < flow.nodes.length; j++) {
-        const a = flow.nodes[i]
-        const b = flow.nodes[j]
-        if (Math.abs(a.x - b.x) < CARD.w && Math.abs(a.y - b.y) < CARD.h) warn(`nodes "${a.id}" and "${b.id}" overlap. Move one at least ${CARD.w}px sideways or ${CARD.h}px down.`)
+    const box = (n) => ({ id: n.id, x: n.x, y: n.y, r: n.x + CARD.w, b: n.y + cardHeight(n) })
+    const boxes = flow.nodes.map(box)
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i]
+        const b = boxes[j]
+        if (a.x < b.r + 8 && b.x < a.r + 8 && a.y < b.b + 8 && b.y < a.b + 8) {
+          warn(`nodes "${a.id}" and "${b.id}" overlap (cards are ${CARD.w}px wide; these two are about ${a.b - a.y}px and ${b.b - b.y}px tall). Move one of them.`)
+        }
+      }
+    }
+
+    /* A straight edge between two aligned cards must not run through a third. */
+    const [out, into] = flow.direction === "right" ? ["right", "left"] : ["bottom", "top"]
+    for (const [i, e] of flow.edges.entries()) {
+      const a = boxes.find((n) => n.id === e.from)
+      const b = boxes.find((n) => n.id === e.to)
+      const sides = `${e.fromSide ?? out}>${e.toSide ?? into}`
+      const name = isText(e.id) ? `edge "${e.id}"` : `edges[${i}]`
+      const horizontal = (sides === "right>left" || sides === "left>right") && Math.abs(a.y - b.y) < 30
+      const vertical = (sides === "bottom>top" || sides === "top>bottom") && Math.abs(a.x - b.x) < 30
+      if (!horizontal && !vertical) continue
+      for (const n of boxes) {
+        if (n.id === a.id || n.id === b.id) continue
+        const lineY = a.y + 34
+        const lineX = a.x + CARD.w / 2
+        const hit = horizontal
+          ? n.y <= lineY && lineY <= n.b && n.x < Math.max(a.x, b.x) && n.r > Math.min(a.r, b.r)
+          : n.x <= lineX && lineX <= n.r && n.y < Math.max(a.y, b.y) && n.b > Math.min(a.b, b.b)
+        if (hit) warn(`${name} (${e.from} → ${e.to}): runs straight through card "${n.id}". Move the card out of the way, or route the edge through other sides.`)
+      }
+    }
+
+    /* A lens draws a band around its cards: scattered cards make the band cover other journeys. */
+    for (const s of flow.scenarios) {
+      const mine = boxes.filter((n) => nodeById.get(n.id).scenarios.includes(s.id))
+      if (mine.length < 2) continue
+      const x0 = Math.min(...mine.map((n) => n.x))
+      const y0 = Math.min(...mine.map((n) => n.y))
+      const x1 = Math.max(...mine.map((n) => n.r))
+      const y1 = Math.max(...mine.map((n) => n.b))
+      const inside = boxes.filter((n) => !mine.includes(n) && (n.x + n.r) / 2 > x0 && (n.x + n.r) / 2 < x1 && (n.y + n.b) / 2 > y0 && (n.y + n.b) / 2 < y1)
+      if (inside.length >= Math.max(2, Math.ceil(mine.length * 0.3))) {
+        warn(`scenario "${s.id}": its band would cover ${inside.length} cards of other scenarios (${inside.map((n) => n.id).join(", ")}). Keep a scenario's cards together: its own lane plus the trunk.`)
       }
     }
   }

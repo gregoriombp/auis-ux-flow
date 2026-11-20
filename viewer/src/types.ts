@@ -4,7 +4,7 @@ export type EdgeKind = "base" | "branch" | "cross"
 export type FlowScenario = {
   id: string
   label: string
-  /** A palette name (blue, emerald, purple, teal, lime, slate, pink) or any CSS color. */
+  /** A palette name (blue, emerald, purple, lime, slate, cyan, pink) or any CSS color. */
   color?: string
   summary?: string
 }
@@ -67,7 +67,8 @@ export type LoadResult =
 
 export type Note = { id: string; text: string; at: number }
 export type Notes = Record<string, Note[]>
-export type Positions = Record<string, { x: number; y: number }>
+/** Where a card was dragged to, and where the flow file had it at that moment (`fx`, `fy`). */
+export type Positions = Record<string, { x: number; y: number; fx: number; fy: number }>
 
 declare global {
   const __VIEWER_VERSION__: string
