@@ -39,7 +39,7 @@ export function readPositions(flow: Flow): Positions {
 export const writePositions = (slug: string, positions: Positions) => write(key("layout", slug), positions)
 
 export function readTheme(): "light" | "dark" {
-  return document.documentElement.dataset.theme === "dark" ? "dark" : "light"
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark"
 }
 export function writeTheme(theme: "light" | "dark") {
   document.documentElement.dataset.theme = theme
