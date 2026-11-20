@@ -6,7 +6,9 @@ A normal flow diagram shows one path. This shows where paths meet, where they sp
 
 ![Three journeys on one board; the lens isolates each one in turn](docs/preview.gif)
 
-**[Open the live demo](https://gregoriombp.github.io/auis-ux-flow/)** · [watch it cycle the lenses](https://gregoriombp.github.io/auis-ux-flow/?tour=1)
+**[Open the live demo](https://gregoriombp.github.io/auis-ux-flow/)** (three example flows) · [watch it cycle the lenses](https://gregoriombp.github.io/auis-ux-flow/#/workspace?tour=1)
+
+![The demo's index: three flows, each drawn as a thumbnail of its own board](docs/flows.png)
 
 Works in any repository and any stack. Nothing is installed in your project: the agent writes data files, and a single HTML file renders them. Open it with a double-click.
 
@@ -58,7 +60,7 @@ Open `ux-flows/index.html`. Commit the folder; publish it anywhere static if you
 - **Gates and convergences made explicit.** Decisions are their own cards; the places where journeys rejoin are the cards with the most dots.
 - **Notes that go back to the agent.** Leave notes on cards in Comment mode, drag cards where you want them, then **Copy for agent** and paste: the agent updates the flow and its changelog.
 - **A changelog** of structural changes, kept in the flow file.
-- Fullscreen, light and dark, and deep links: `index.html#/checkout?focus=guest`.
+- Dark by default, with a light theme; fullscreen; deep links: `index.html#/checkout?focus=guest`.
 
 ## Keeping a flow up to date
 
@@ -109,7 +111,7 @@ npm run build    # rebuilds skills/auis-ux-flow/assets/viewer.html and docs/inde
 node --test ../tests/*.test.mjs
 ```
 
-`docs/` is the live demo: the built viewer, the example flow and its mock screens.
+`docs/` is the live demo: the built viewer, three example flows (`workspace`, `join`, `billing`) and their mock screens.
 
 ## License
 
