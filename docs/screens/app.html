@@ -1,0 +1,161 @@
+<!doctype html>
+<!-- Mock screens for the example flow. One file, one screen per ?screen=, states through ?state=. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mock screen</title>
+    <style>
+      :root {
+        --fg: #171717;
+        --fg2: #5c5c5c;
+        --fg3: #8f8f8f;
+        --line: #e4e4e4;
+        --soft: #f5f5f5;
+        --blue: #2563eb;
+        --blue-soft: #e8effe;
+        --green: #059669;
+        --green-soft: #e3f6ec;
+        --red: #b42318;
+        --red-soft: #fde8e8;
+        --amber: #8a5a06;
+        --amber-soft: #fdf4dc;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--fg); background: #fff; }
+      .app { display: grid; grid-template-columns: 208px 1fr; min-height: 100vh; }
+      .side { border-right: 1px solid var(--line); background: var(--soft); padding: 18px 12px; display: grid; align-content: start; gap: 4px; }
+      .brand { display: flex; align-items: center; gap: 8px; font-weight: 600; padding: 0 8px 14px; }
+      .brand i { width: 18px; height: 18px; border-radius: 5px; background: var(--fg); }
+      .nav { padding: 6px 8px; border-radius: 6px; color: var(--fg2); }
+      .nav.on { background: #fff; color: var(--fg); font-weight: 500; box-shadow: 0 0 0 1px var(--line); }
+      main { padding: 28px 36px; max-width: 980px; }
+      .head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+      h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+      .sub { color: var(--fg2); margin: 2px 0 0; }
+      .btn { display: inline-block; border: 1px solid var(--line); border-radius: 7px; padding: 7px 12px; font-weight: 500; background: #fff; }
+      .btn.primary { background: var(--fg); border-color: var(--fg); color: #fff; }
+      .btn.off { opacity: 0.45; }
+      .row { display: flex; gap: 8px; }
+      .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+      .list > div { display: grid; grid-template-columns: 1fr 120px 110px; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid var(--line); }
+      .list > div:first-child { color: var(--fg3); font-size: 12px; padding-block: 6px; }
+      .pill { display: inline-block; border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 500; background: var(--soft); color: var(--fg2); }
+      .pill.green { background: var(--green-soft); color: var(--green); }
+      .pill.blue { background: var(--blue-soft); color: var(--blue); }
+      .pill.amber { background: var(--amber-soft); color: var(--amber); }
+      .muted { color: var(--fg3); font-size: 12.5px; }
+      .field { display: grid; gap: 5px; margin-bottom: 14px; }
+      .field label { font-size: 12.5px; font-weight: 500; }
+      .input { border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; color: var(--fg2); background: #fff; }
+      .empty { border: 1px dashed var(--line); border-radius: 12px; padding: 56px 24px; text-align: center; display: grid; gap: 10px; justify-items: center; }
+      .banner { border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-weight: 500; }
+      .banner.red { background: var(--red-soft); color: var(--red); }
+      .banner.amber { background: var(--amber-soft); color: var(--amber); }
+      .banner.green { background: var(--green-soft); color: var(--green); }
+      .skeleton { height: 14px; border-radius: 6px; background: linear-gradient(90deg, #eee 25%, #f7f7f7 37%, #eee 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+      @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+      .two { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
+      .block { border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; gap: 12px; }
+      .stat b { display: block; font-size: 22px; letter-spacing: -0.02em; }
+      @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="side">
+        <div class="brand"><i></i>Fieldbook</div>
+        <div class="nav" data-nav="workspaces">Workspaces</div>
+        <div class="nav" data-nav="templates">Templates</div>
+        <div class="nav">Members</div>
+        <div class="nav">Settings</div>
+      </aside>
+      <main id="main"></main>
+    </div>
+
+    <script>
+      const q = new URLSearchParams(location.search)
+      const state = q.get("state") || "default"
+
+      const rows = [
+        ["Field research", "Live", "12 members"],
+        ["Customer interviews", "Live", "8 members"],
+        ["Q4 planning", "Draft", "3 members"],
+      ]
+      const head = (title, sub, actions = "") => `<div class="head"><div><h1>${title}</h1><p class="sub">${sub}</p></div><div class="row">${actions}</div></div>`
+      const field = (label, value) => `<div class="field"><label>${label}</label><div class="input">${value}</div></div>`
+
+      const SCREENS = {
+        workspaces: {
+          nav: "workspaces",
+          html() {
+            const top = head("Workspaces", "Where your team collects and organises its work.", '<span class="btn primary">New workspace</span>')
+            if (state === "empty") return top + '<div class="empty"><b>No workspaces yet</b><span class="muted">Create the first one to start collecting work.</span><span class="btn primary">New workspace</span></div>'
+            if (state === "loading") return top + '<div class="list">' + [70, 55, 62].map((w) => `<div><span class="skeleton" style="width:${w}%"></span><span class="skeleton"></span><span class="skeleton"></span></div>`).join("") + "</div>"
+            return top + '<div class="list"><div><span>Name</span><span>Status</span><span>Members</span></div>' + rows.map(([n, s, m]) => `<div><b>${n}</b><span><span class="pill ${s === "Live" ? "green" : ""}">${s}</span></span><span class="muted">${m}</span></div>`).join("") + "</div>"
+          },
+        },
+        "new-workspace": {
+          nav: "workspaces",
+          html: () =>
+            head("New workspace", "A workspace always starts from a template.") +
+            '<div class="card" style="max-width:520px">' + field("Name", "Field research") + field("Region", "Europe (Frankfurt)") + field("Template", "Choose a template") +
+            '<p class="muted" style="margin:-6px 0 14px">No template yet? <b style="color:var(--blue)">Build one</b> and come back.</p><div class="row"><span class="btn primary off">Continue</span><span class="btn">Cancel</span></div></div>',
+        },
+        templates: {
+          nav: "templates",
+          html: () =>
+            head("Template gallery", "Start from one of these, or from a blank template.", '<span class="btn primary">Blank template</span>') +
+            '<div class="grid">' + [["Research log", "Sessions, findings, quotes"], ["Interview guide", "Script, notes, follow-ups"], ["Planning board", "Goals, bets, owners"]].map(([n, d]) => `<div class="card"><b>${n}</b><p class="muted">${d}</p><span class="pill blue">Use as a start</span></div>`).join("") + "</div>",
+        },
+        "template-builder": {
+          nav: "templates",
+          html: () =>
+            head("Template builder", "Sections, fields and defaults a new workspace starts with.", '<span class="btn">Preview</span><span class="btn primary">Save template</span>') +
+            '<div class="two"><div>' + ["Sessions", "Findings", "Quotes"].map((n) => `<div class="block"><b>${n}</b><span class="muted">4 fields</span></div>`).join("") + '<div class="block" style="border-style:dashed;justify-content:center;color:var(--fg3)">Add a section</div></div><div class="card">' + field("Template name", "Research log") + field("Default view", "Table") + "</div></div>",
+        },
+        overview: {
+          nav: "workspaces",
+          html: () =>
+            head("Field research", "Live · version 14 published 3 days ago", '<span class="btn primary">Edit workspace</span>') +
+            '<div class="grid" style="margin-bottom:16px">' + [["12", "Members"], ["248", "Entries this month"], ["31", "Saved links"]].map(([n, l]) => `<div class="card stat"><b>${n}</b><span class="muted">${l}</span></div>`).join("") +
+            '</div><div class="banner amber">31 saved links point to sections of this workspace. Renaming or removing a section breaks them.</div>',
+        },
+        notify: {
+          nav: "workspaces",
+          html: () =>
+            head("Notify members", "Tell people before a breaking change goes out.") +
+            '<div class="card" style="max-width:560px">' + field("Who", "All 12 members") + field("When", "24 hours before publishing") + field("Message", "The Findings section is being renamed to Insights. Saved links will need updating.") +
+            '<div class="row"><span class="btn primary">Schedule announcement</span><span class="btn">Skip</span></div></div>',
+        },
+        editor: {
+          nav: "workspaces",
+          html() {
+            const banner = state === "error" ? '<div class="banner red">Could not save. Your changes are still here: try again.</div>' : state === "unsaved" ? '<div class="banner amber">You have unsaved changes.</div>' : ""
+            const save = state === "default" ? '<span class="btn off">Saved</span>' : state === "error" ? '<span class="btn primary">Retry save</span>' : '<span class="btn primary">Save</span>'
+            return head("Workspace editor", "Field research", save + '<span class="btn">Review and publish</span>') + banner +
+              '<div class="two"><div>' + [["Sessions", "Table"], ["Findings", "Board"], ["Quotes", "List"]].map(([n, v]) => `<div class="block"><b>${n}</b><span class="pill">${v}</span></div>`).join("") + '</div><div class="card">' + field("Section name", state === "default" ? "Findings" : "Insights") + field("View", "Board") + "</div></div>"
+          },
+        },
+        publish: {
+          nav: "workspaces",
+          html: () =>
+            head("Review and publish", "What members will see once this goes out.", '<span class="btn">Back to editor</span><span class="btn primary">Publish</span>') +
+            '<div class="card" style="max-width:620px">' + [["Sections", "3 (1 renamed)"], ["Members affected", "12"], ["Saved links", "31 need updating"]].map(([l, v]) => `<div class="block" style="border:0;border-bottom:1px solid var(--line);border-radius:0;padding-inline:0"><span>${l}</span><b>${v}</b></div>`).join("") + "</div>",
+        },
+        live: {
+          nav: "workspaces",
+          html: () =>
+            head("Field research", "Live · version 15 published just now", '<span class="btn">Share</span>') +
+            '<div class="banner green">Published. Members see this version now.</div><div class="grid">' + ["Sessions", "Insights", "Quotes"].map((n) => `<div class="card"><b>${n}</b><p class="muted">Open section</p></div>`).join("") + "</div>",
+        },
+      }
+
+      const current = SCREENS[q.get("screen")] || SCREENS.workspaces
+      document.getElementById("main").innerHTML = current.html()
+      document.querySelector(`[data-nav="${current.nav}"]`)?.classList.add("on")
+      document.title = (q.get("screen") || "workspaces") + " · mock screen"
+    </script>
+  </body>
+</html>
