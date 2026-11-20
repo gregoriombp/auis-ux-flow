@@ -6,6 +6,7 @@ import {
   Controls,
   EdgeLabelRenderer,
   Handle,
+  MarkerType,
   Panel,
   Position,
   ReactFlow,
@@ -161,7 +162,7 @@ function flare(x: number, y: number, side: Position, color: string, strong: bool
 }
 
 /** A hairline step path, a port at the start, light where it lands, and moving light under a lens. */
-function FlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data }: EdgeProps<Edge<FlowEdgeData>>) {
+function FlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, markerEnd }: EdgeProps<Edge<FlowEdgeData>>) {
   const look = EDGE_LOOK[data?.kind ?? "base"]
   const lit = data?.lit ?? true
   const lens = data?.lens
@@ -180,7 +181,7 @@ function FlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targ
     <>
       <g className={lit ? "edge" : "edge is-dim"}>
         {lens && <path d={path} className="edge-glow" stroke={lens} />}
-        <BaseEdge id={id} path={path} className="edge-line" style={{ stroke, strokeDasharray: look.dash }} />
+        <BaseEdge id={id} path={path} className="edge-line" markerEnd={markerEnd} style={{ stroke, strokeDasharray: look.dash }} />
         {lens && <path d={path} className="edge-flow" stroke={lens} />}
         <circle cx={sourceX} cy={sourceY} r={2.4} className="edge-port" stroke={stroke} />
         {flare(targetX, targetY, targetPosition, lens ?? stroke, Boolean(lens))}
@@ -304,6 +305,14 @@ export function Canvas({
         targetHandle: `${e.toSide ?? into}-in`,
         type: "flow",
         zIndex: lit && lens ? 2 : 1,
+        /* A small open chevron: direction stays readable on loops and in the light theme. */
+        markerEnd: {
+          type: MarkerType.Arrow,
+          width: 11,
+          height: 11,
+          strokeWidth: 1.4,
+          color: lens && lit && (e.kind ?? "base") === "base" ? "var(--edge-lit)" : EDGE_LOOK[e.kind ?? "base"].stroke,
+        },
         data: { kind: e.kind ?? "base", lit, lens: lit ? lens : undefined, offset: e.offset, text: e.label },
       }
     })
