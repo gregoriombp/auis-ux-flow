@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import {
   Background,
+  BackgroundVariant,
+  BaseEdge,
   Controls,
+  EdgeLabelRenderer,
   Handle,
-  MarkerType,
   Panel,
   Position,
   ReactFlow,
-  type BuiltInEdge,
+  getSmoothStepPath,
+  type Edge,
+  type EdgeProps,
   type Node,
   type NodeChange,
   type NodeProps,
@@ -22,7 +26,7 @@ import type { Flow, FlowNode, Focus, Notes, Positions, Side } from "./types"
 
 type Dot = { id: string; label: string; color: string }
 type CardData = { node: FlowNode; dots: Dot[]; notes: number }
-type BandData = { title: string; color: string }
+type BandData = { title: string; color: string; cards: number; shared: number }
 type Sizes = Record<string, { width: number; height: number }>
 
 function NotePin({ n }: { n: number }) {
@@ -39,7 +43,7 @@ function ScenarioDots({ dots }: { dots: Dot[] }) {
   return (
     <div className="dots">
       {dots.map((d) => (
-        <span key={d.id} className="dot" style={{ background: d.color }} title={d.label} />
+        <span key={d.id} className="dot" style={{ background: d.color, color: d.color }} title={d.label} />
       ))}
     </div>
   )
@@ -107,11 +111,20 @@ function DecisionCard({ data }: NodeProps<Node<CardData>>) {
   )
 }
 
-/** The tinted box drawn behind the focused scenario's cards. */
+/** The measured frame drawn around the focused scenario's cards. */
 function Band({ data }: NodeProps<Node<BandData>>) {
   return (
     <div className="band" style={{ "--tint": data.color } as React.CSSProperties}>
+      <span className="band-measure" aria-hidden="true">
+        <span>
+          {data.cards} cards · {data.shared} shared
+        </span>
+      </span>
       <span className="eyebrow band-title">{data.title}</span>
+      <i className="band-corner is-tl" />
+      <i className="band-corner is-tr" />
+      <i className="band-corner is-bl" />
+      <i className="band-corner is-br" />
     </div>
   )
 }
@@ -123,11 +136,73 @@ const nodeTypes = { screen: ScreenCard, decision: DecisionCard, band: Band }
 const EDGE_LOOK = {
   base: { stroke: "var(--edge)", dash: undefined },
   branch: { stroke: "var(--decision-line)", dash: undefined },
-  cross: { stroke: "var(--cross)", dash: "5 3" },
+  cross: { stroke: "var(--cross)", dash: "4 4" },
 } as const
 
-/* Leave room for the floating controls when framing the graph. */
-const FIT = { padding: { top: "56px", right: "24px", bottom: "68px", left: "24px" } } as const
+type FlowEdgeData = {
+  kind: keyof typeof EDGE_LOOK
+  lit: boolean
+  /** The focused scenario's colour when a lens is on and this edge belongs to it. */
+  lens?: string
+  offset?: number
+  text?: string
+}
+
+/** The flare where a line meets a card: long along the card's side, thin across it. */
+function flare(x: number, y: number, side: Position, color: string, strong: boolean) {
+  const along = side === Position.Left || side === Position.Right
+  const long = strong ? 22 : 14
+  return (
+    <>
+      <ellipse className="edge-flare" cx={x} cy={y} rx={along ? 3 : long} ry={along ? long : 3} fill={color} />
+      <ellipse className="edge-flare-core" cx={x} cy={y} rx={along ? 0.8 : long * 0.55} ry={along ? long * 0.55 : 0.8} />
+    </>
+  )
+}
+
+/** A hairline step path, a port at the start, light where it lands, and moving light under a lens. */
+function FlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data }: EdgeProps<Edge<FlowEdgeData>>) {
+  const look = EDGE_LOOK[data?.kind ?? "base"]
+  const lit = data?.lit ?? true
+  const lens = data?.lens
+  const [path, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+    borderRadius: 14,
+    offset: data?.offset,
+  })
+  const stroke = lens && data?.kind === "base" ? "var(--edge-lit)" : look.stroke
+  return (
+    <>
+      <g className={lit ? "edge" : "edge is-dim"}>
+        {lens && <path d={path} className="edge-glow" stroke={lens} />}
+        <BaseEdge id={id} path={path} className="edge-line" style={{ stroke, strokeDasharray: look.dash }} />
+        {lens && <path d={path} className="edge-flow" stroke={lens} />}
+        <circle cx={sourceX} cy={sourceY} r={2.4} className="edge-port" stroke={stroke} />
+        {flare(targetX, targetY, targetPosition, lens ?? stroke, Boolean(lens))}
+      </g>
+      {data?.text && (
+        <EdgeLabelRenderer>
+          <span
+            className={`edge-label${data.kind === "branch" ? " is-branch" : data.kind === "cross" ? " is-cross" : ""}`}
+            style={{ transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`, opacity: lit ? 1 : 0 }}
+          >
+            {data.text}
+          </span>
+        </EdgeLabelRenderer>
+      )}
+    </>
+  )
+}
+
+const edgeTypes = { flow: FlowEdge }
+
+/* Leave room for the floating controls, and for the lens frame and its dimension line, when framing the graph. */
+const FIT = { padding: { top: "80px", right: "56px", bottom: "84px", left: "56px" } } as const
 
 const BAND_PAD = 36
 const BAND_PAD_TOP = 52
@@ -174,7 +249,8 @@ export function Canvas({
       position: place(n),
       measured: sizes[n.id],
       zIndex: 10,
-      className: focus !== "all" && !n.scenarios.includes(focus) ? "is-dim" : undefined,
+      className: focus === "all" ? undefined : n.scenarios.includes(focus) ? "is-lit" : "is-dim",
+      style: focus === "all" ? undefined : ({ "--lens": scenarioColor(flow, focus) } as React.CSSProperties),
       data: {
         node: n,
         notes: notes[n.id]?.length ?? 0,
@@ -204,29 +280,32 @@ export function Canvas({
       selectable: false,
       draggable: false,
       focusable: false,
-      data: { title: scenarioLabel(flow, focus), color: scenarioColor(flow, focus) } satisfies BandData,
+      data: {
+        title: scenarioLabel(flow, focus),
+        color: scenarioColor(flow, focus),
+        cards: members.length,
+        shared: members.filter((n) => n.scenarios.length > 1).length,
+      } satisfies BandData,
     }
     return [band, ...cards]
   }, [flow, focus, notes, positions, sizes])
 
-  const edges = useMemo<BuiltInEdge[]>(() => {
+  const edges = useMemo<Edge<FlowEdgeData>[]>(() => {
     /* Edges leave and arrive along the direction the journeys run, unless they say otherwise. */
     const [out, into] = flow.direction === "right" ? ["right", "left"] : ["bottom", "top"]
+    const lens = focus === "all" ? undefined : scenarioColor(flow, focus)
     return flow.edges.map((e, i) => {
-        const look = EDGE_LOOK[e.kind ?? "base"]
-        const lit = focus === "all" || edgeScenarios(e, nodeById).includes(focus)
-        return {
-          id: e.id ?? `edge-${i}`,
-          source: e.from,
-          target: e.to,
-          sourceHandle: `${e.fromSide ?? out}-out`,
-          targetHandle: `${e.toSide ?? into}-in`,
-          type: "smoothstep",
-          label: lit ? e.label : undefined,
-          pathOptions: e.offset != null ? { offset: e.offset } : undefined,
-          markerEnd: { type: MarkerType.ArrowClosed, width: 15, height: 15, color: look.stroke },
-          style: { stroke: look.stroke, strokeWidth: 1.4, strokeDasharray: look.dash, opacity: lit ? 1 : 0.1 },
-        }
+      const lit = focus === "all" || edgeScenarios(e, nodeById).includes(focus)
+      return {
+        id: e.id ?? `edge-${i}`,
+        source: e.from,
+        target: e.to,
+        sourceHandle: `${e.fromSide ?? out}-out`,
+        targetHandle: `${e.toSide ?? into}-in`,
+        type: "flow",
+        zIndex: lit && lens ? 2 : 1,
+        data: { kind: e.kind ?? "base", lit, lens: lit ? lens : undefined, offset: e.offset, text: e.label },
+      }
     })
   }, [flow, focus, nodeById])
 
@@ -273,6 +352,7 @@ export function Canvas({
         edges={edges}
         onNodesChange={onNodesChange}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         colorMode={theme}
         fitView
         fitViewOptions={FIT}
@@ -290,7 +370,8 @@ export function Canvas({
           else if (card.type !== "decision") onOpenCard(card)
         }}
       >
-        <Background color="var(--grid)" gap={24} size={1.5} />
+        <Background id="lines" variant={BackgroundVariant.Lines} color="var(--grid-line)" gap={240} lineWidth={1} />
+        <Background id="dots" variant={BackgroundVariant.Dots} color="var(--grid)" gap={24} size={1.2} />
         <Controls showInteractive={false} />
 
         {fullscreen && (

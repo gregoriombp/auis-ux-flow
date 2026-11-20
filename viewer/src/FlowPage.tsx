@@ -117,6 +117,9 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
   )
   const updates = useMemo(() => newestFirst(flow.updates ?? []), [flow])
   const sharedCount = flow.nodes.filter((n) => n.scenarios.length > 1).length
+  /* Section numbers count only the sections this flow has. */
+  let section = 0
+  const num = () => String(++section).padStart(2, "0")
 
   const chips = (
     <div className="chips" role="group" aria-label="Focus">
@@ -126,7 +129,7 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
       </button>
       {flow.scenarios.map((s) => (
         <button key={s.id} type="button" className={focus === s.id ? "chip is-on" : "chip"} aria-pressed={focus === s.id} onClick={() => pickFocus(s.id)}>
-          <span className="dot" style={{ background: scenarioColor(flow, s.id) }} />
+          <span className="dot" style={{ background: scenarioColor(flow, s.id), color: scenarioColor(flow, s.id) }} />
           {s.label}
         </button>
       ))}
@@ -147,9 +150,9 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
       <header className="hero">
         <div className="hero-row">
           <h1>{flow.title}</h1>
-          <span className="badge badge-amber">compiled view</span>
+          <span className="badge">compiled view</span>
           {updates[0] && (
-            <a className="badge badge-amber" href="#updates" title={updates[0].summary} onClick={(e) => (e.preventDefault(), document.getElementById("updates")?.scrollIntoView({ behavior: "smooth" }))}>
+            <a className="badge" href="#updates" title={updates[0].summary} onClick={(e) => (e.preventDefault(), document.getElementById("updates")?.scrollIntoView({ behavior: "smooth" }))}>
               <span className="pulse" aria-hidden="true" />
               Updated on {shortDate(updates[0].date)}
             </a>
@@ -181,11 +184,17 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
         <div className="board-bar">
           {chips}
           <p className="legend">
+            <span>{flow.scenarios.length} scenarios</span>
             <span>{flow.nodes.length} cards</span>
             <span>{sharedCount} shared</span>
-            <span>2+ dots = one screen used by several scenarios</span>
+            <span>2+ dots = one screen, several journeys</span>
           </p>
         </div>
+        <div className="frame">
+          <i className="mark mark-tl" />
+          <i className="mark mark-tr" />
+          <i className="mark mark-bl" />
+          <i className="mark mark-br" />
         <Canvas
           key={layoutKey}
           flow={flow}
@@ -205,11 +214,12 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
           }}
           tray={tray}
         />
+        </div>
       </section>
 
       <div className="docs">
         <section id="scenarios">
-          <h2>Compiled scenarios</h2>
+          <h2><span className="eyebrow">{num()}</span>Compiled scenarios</h2>
           <ul className="scenario-list">
             {flow.scenarios.map((s) => {
               const cards = flow.nodes.filter((n) => n.scenarios.includes(s.id))
@@ -217,7 +227,7 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
               return (
                 <li key={s.id}>
                   <button type="button" className="scenario-pick" onClick={() => (pickFocus(s.id), window.scrollTo({ top: 0, behavior: "smooth" }))} title="Focus this scenario">
-                    <span className="dot dot-lg" style={{ background: scenarioColor(flow, s.id) }} />
+                    <span className="dot dot-lg" style={{ background: scenarioColor(flow, s.id), color: scenarioColor(flow, s.id) }} />
                     <strong>{s.label}</strong>
                   </button>
                   {s.summary && <p>{s.summary}</p>}
@@ -232,7 +242,7 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
 
         {flow.shared?.length ? (
           <section id="shared">
-            <h2>Shared screens and convergence</h2>
+            <h2><span className="eyebrow">{num()}</span>Shared screens and convergence</h2>
             <ol className="ledger">
               {flow.shared.map((d) => (
                 <li key={d.title}>
@@ -246,7 +256,7 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
 
         {flow.gaps?.length ? (
           <section id="gaps">
-            <h2>Gaps the map exposes</h2>
+            <h2><span className="eyebrow">{num()}</span>Gaps the map exposes</h2>
             <ol className="ledger">
               {flow.gaps.map((d) => (
                 <li key={d.title}>
@@ -260,7 +270,7 @@ export function FlowPage({ loaded, theme }: { loaded: LoadedFlow; theme: "light"
 
         {updates.length > 0 && (
           <section id="updates">
-            <h2>Update history</h2>
+            <h2><span className="eyebrow">{num()}</span>Update history</h2>
             <ol className="updates">
               {updates.map((u, i) => (
                 <li key={`${u.date}-${i}`}>

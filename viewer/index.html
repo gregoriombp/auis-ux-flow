@@ -5,17 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="auis-ux-flow viewer __VIEWER_VERSION__" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="dark light" />
     <title>UX flows</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='3' fill='%232563eb'/%3E%3Ccircle cx='11' cy='8' r='3' fill='%23059669'/%3E%3C/svg%3E" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23050505'/%3E%3Ccircle cx='5.5' cy='8' r='2.2' fill='%236f9bff'/%3E%3Ccircle cx='10.5' cy='8' r='2.2' fill='%233ddc97'/%3E%3C/svg%3E" />
     <script>
-      // Theme before first paint. Stored choice wins over the system setting.
+      // Theme before first paint. Dark unless the reader picked light here before.
       try {
         var t = localStorage.getItem("auis-ux-flow:theme")
-        if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-        document.documentElement.dataset.theme = t
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark"
       } catch (e) {
-        document.documentElement.dataset.theme = "light"
+        document.documentElement.dataset.theme = "dark"
       }
     </script>
     <!-- The manifest sits next to this file and lists the flows to show. -->

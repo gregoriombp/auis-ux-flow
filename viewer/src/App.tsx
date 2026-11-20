@@ -2,6 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from "react"
 import { FlowPage } from "./FlowPage"
 import { Icon } from "./icons"
 import { scenarioColor } from "./palette"
+import { Thumb } from "./Thumb"
 import { readTheme, writeTheme } from "./storage"
 import type { LoadResult } from "./types"
 
@@ -14,6 +15,7 @@ const subscribeHash = (cb: () => void) => {
 }
 /** `#/checkout?focus=guest` → "checkout". */
 const currentSlug = () => window.location.hash.replace(/^#\/?/, "").split("?")[0]
+const pad = (n: number) => String(n).padStart(2, "0")
 
 export function App({ result }: { result: LoadResult }) {
   const slug = useSyncExternalStore(subscribeHash, currentSlug)
@@ -35,16 +37,28 @@ export function App({ result }: { result: LoadResult }) {
     <div className="page">
       <nav className="topbar">
         {active && flows.length > 1 ? (
-          <a className="crumb" href="#/">
-            <Icon name="back" size={14} />
-            All flows
+          <a className="corner" href="#/">
+            <span className="corner-back">
+              <Icon name="back" size={12} />
+              All flows
+            </span>
+            <b>UX flows</b>
           </a>
         ) : (
-          <span className="crumb crumb-static">UX flows</span>
+          <span className="corner">
+            Compiled
+            <b>UX flows</b>
+          </span>
         )}
-        <button type="button" className="btn btn-icon btn-quiet" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}>
-          <Icon name={theme === "dark" ? "sun" : "moon"} />
-        </button>
+        <div className="topbar-end">
+          <span className="corner corner-right">
+            {active ? "Flow" : "Flows"}
+            <b>{active ? `${pad(flows.indexOf(active) + 1)} / ${pad(flows.length)}` : pad(flows.length)}</b>
+          </span>
+          <button type="button" className="btn btn-icon" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}>
+            <Icon name={theme === "dark" ? "sun" : "moon"} size={14} />
+          </button>
+        </div>
       </nav>
 
       <main>
@@ -89,19 +103,28 @@ function Index({ result, unknown }: { result: Extract<LoadResult, { state: "read
         <p className="notice">flows.js is empty. Ask your agent to map a set of journeys with the auis-ux-flow skill.</p>
       ) : (
         <ul className="flow-grid">
-          {result.flows.map(({ flow, errors }) => (
+          {result.flows.map(({ flow, errors }, i) => (
             <li key={flow.slug}>
               <a href={`#/${flow.slug}`} className="flow-card">
-                <span className="flow-card-dots">
-                  {flow.scenarios?.map((s) => (
-                    <span key={s.id} className="dot dot-lg" style={{ background: scenarioColor(flow, s.id) }} title={s.label} />
-                  ))}
-                </span>
-                <strong>{flow.title}</strong>
-                {flow.intro && <p>{flow.intro}</p>}
-                <span className="muted">
-                  {flow.scenarios?.length ?? 0} scenarios · {flow.nodes?.length ?? 0} cards
-                  {errors.length ? ` · ${errors.length} error${errors.length === 1 ? "" : "s"}` : ""}
+                <Thumb flow={flow} />
+                <span className="flow-card-body">
+                  <span className="flow-card-head">
+                    <strong>{flow.title}</strong>
+                    <span className="flow-card-num">{pad(i + 1)}</span>
+                  </span>
+                  {flow.intro && <p>{flow.intro}</p>}
+                  <span className="flow-card-dots">
+                    {flow.scenarios?.map((s) => (
+                      <span key={s.id}>
+                        <span className="dot" style={{ background: scenarioColor(flow, s.id), color: scenarioColor(flow, s.id) }} />
+                        {s.label}
+                      </span>
+                    ))}
+                  </span>
+                  <span className="muted">
+                    {flow.scenarios?.length ?? 0} scenarios / {flow.nodes?.length ?? 0} cards / {flow.nodes?.filter((n) => n.scenarios?.length > 1).length ?? 0} shared
+                    {errors.length ? ` / ${errors.length} error${errors.length === 1 ? "" : "s"}` : ""}
+                  </span>
                 </span>
               </a>
             </li>
