@@ -1,78 +1,104 @@
 <!doctype html>
-<!-- Mock screens for the example flow. One file, one screen per ?screen=, states through ?state=. -->
+<!-- Mock screens for the example flows. One file, one screen per ?screen=, states through ?state=. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
     <title>Mock screen</title>
     <style>
       :root {
-        --fg: #171717;
-        --fg2: #5c5c5c;
-        --fg3: #8f8f8f;
-        --line: #e4e4e4;
-        --soft: #f5f5f5;
-        --blue: #2563eb;
-        --blue-soft: #e8effe;
-        --green: #059669;
-        --green-soft: #e3f6ec;
-        --red: #b42318;
-        --red-soft: #fde8e8;
-        --amber: #8a5a06;
-        --amber-soft: #fdf4dc;
+        --bg: #070707;
+        --panel: #0d0d0d;
+        --raised: #131313;
+        --fg: #f2f2f2;
+        --fg2: #a1a1a1;
+        --fg3: #666;
+        --line: #232323;
+        --line2: #333;
+        --dot: #222;
+        --blue: #6f9bff;
+        --green: #3ddc97;
+        --purple: #ad8cff;
+        --red: #ff6b6b;
+        --amber: #f2b544;
+        --mono: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
       }
       * { box-sizing: border-box; }
-      body { margin: 0; font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--fg); background: #fff; }
-      .app { display: grid; grid-template-columns: 208px 1fr; min-height: 100vh; }
-      .side { border-right: 1px solid var(--line); background: var(--soft); padding: 18px 12px; display: grid; align-content: start; gap: 4px; }
-      .brand { display: flex; align-items: center; gap: 8px; font-weight: 600; padding: 0 8px 14px; }
-      .brand i { width: 18px; height: 18px; border-radius: 5px; background: var(--fg); }
-      .nav { padding: 6px 8px; border-radius: 6px; color: var(--fg2); }
-      .nav.on { background: #fff; color: var(--fg); font-weight: 500; box-shadow: 0 0 0 1px var(--line); }
-      main { padding: 28px 36px; max-width: 980px; }
-      .head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-      h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
-      .sub { color: var(--fg2); margin: 2px 0 0; }
-      .btn { display: inline-block; border: 1px solid var(--line); border-radius: 7px; padding: 7px 12px; font-weight: 500; background: #fff; }
-      .btn.primary { background: var(--fg); border-color: var(--fg); color: #fff; }
-      .btn.off { opacity: 0.45; }
-      .row { display: flex; gap: 8px; }
-      .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+      body { margin: 0; font: 14px/1.5 "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Inter, "Segoe UI", Roboto, Arial, sans-serif; color: var(--fg); background: var(--bg); -webkit-font-smoothing: antialiased; }
+      .dots { background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 1.2px); background-size: 24px 24px; }
+      .app { display: grid; grid-template-columns: 212px 1fr; min-height: 100vh; }
+      .side { border-right: 1px solid var(--line); background: var(--panel); padding: 20px 12px; display: grid; align-content: start; gap: 2px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; padding: 0 8px 18px; letter-spacing: -0.01em; }
+      .brand i { width: 16px; height: 16px; border: 1px solid var(--fg); position: relative; }
+      .brand i::after { content: ""; position: absolute; inset: 3px; background: var(--fg); }
+      .nav { padding: 7px 10px; color: var(--fg2); border: 1px solid transparent; }
+      .nav.on { background: var(--raised); color: var(--fg); border-color: var(--line); }
+      .side .label { font: 500 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg3); padding: 14px 10px 6px; }
+      main { padding: 32px 40px; max-width: 1020px; }
+      .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 26px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+      .eyebrow { font: 500 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg3); }
+      h1 { margin: 2px 0 0; font-size: 28px; font-weight: 400; letter-spacing: -0.035em; line-height: 1.1; }
+      .sub { color: var(--fg2); margin: 6px 0 0; }
+      .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line2); padding: 7px 13px; font-weight: 500; font-size: 13px; background: var(--raised); color: var(--fg2); white-space: nowrap; }
+      .btn.primary { background: var(--fg); border-color: var(--fg); color: #050505; }
+      .btn.off { opacity: 0.4; }
+      .btn.full { width: 100%; justify-content: center; }
+      .row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .card { border: 1px solid var(--line); background: var(--raised); padding: 18px; }
       .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-      .list > div { display: grid; grid-template-columns: 1fr 120px 110px; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid var(--line); }
-      .list > div:first-child { color: var(--fg3); font-size: 12px; padding-block: 6px; }
-      .pill { display: inline-block; border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 500; background: var(--soft); color: var(--fg2); }
-      .pill.green { background: var(--green-soft); color: var(--green); }
-      .pill.blue { background: var(--blue-soft); color: var(--blue); }
-      .pill.amber { background: var(--amber-soft); color: var(--amber); }
+      .list > div { display: grid; grid-template-columns: 1fr 120px 110px; gap: 12px; align-items: center; padding: 13px 4px; border-bottom: 1px solid var(--line); }
+      .list > div:first-child { font: 500 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg3); padding-block: 8px; }
+      .pill { justify-self: start; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line2); padding: 1px 8px; font: 500 10.5px/1.6 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg2); }
+      .pill::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+      .pill.green { color: var(--green); border-color: color-mix(in oklab, var(--green) 35%, transparent); }
+      .pill.blue { color: var(--blue); border-color: color-mix(in oklab, var(--blue) 35%, transparent); }
+      .pill.amber { color: var(--amber); border-color: color-mix(in oklab, var(--amber) 35%, transparent); }
+      .pill.red { color: var(--red); border-color: color-mix(in oklab, var(--red) 35%, transparent); }
       .muted { color: var(--fg3); font-size: 12.5px; }
-      .field { display: grid; gap: 5px; margin-bottom: 14px; }
-      .field label { font-size: 12.5px; font-weight: 500; }
-      .input { border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; color: var(--fg2); background: #fff; }
-      .empty { border: 1px dashed var(--line); border-radius: 12px; padding: 56px 24px; text-align: center; display: grid; gap: 10px; justify-items: center; }
-      .banner { border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-weight: 500; }
-      .banner.red { background: var(--red-soft); color: var(--red); }
-      .banner.amber { background: var(--amber-soft); color: var(--amber); }
-      .banner.green { background: var(--green-soft); color: var(--green); }
-      .skeleton { height: 14px; border-radius: 6px; background: linear-gradient(90deg, #eee 25%, #f7f7f7 37%, #eee 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+      .field { display: grid; gap: 6px; margin-bottom: 14px; }
+      .field label { font: 500 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg3); }
+      .input { border: 1px solid var(--line2); padding: 9px 11px; color: var(--fg); background: var(--bg); }
+      .input.ph { color: var(--fg3); }
+      .input.bad { border-color: var(--red); }
+      .empty { border: 1px dashed var(--line2); padding: 64px 24px; text-align: center; display: grid; gap: 10px; justify-items: center; }
+      .banner { border: 1px solid; padding: 10px 14px; margin-bottom: 18px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+      .banner::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; flex: none; }
+      .banner.red { color: var(--red); border-color: color-mix(in oklab, var(--red) 35%, transparent); background: color-mix(in oklab, var(--red) 7%, transparent); }
+      .banner.amber { color: var(--amber); border-color: color-mix(in oklab, var(--amber) 35%, transparent); background: color-mix(in oklab, var(--amber) 6%, transparent); }
+      .banner.green { color: var(--green); border-color: color-mix(in oklab, var(--green) 35%, transparent); background: color-mix(in oklab, var(--green) 6%, transparent); }
+      .skeleton { height: 12px; background: linear-gradient(90deg, #151515 25%, #222 37%, #151515 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
       @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
       .two { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
-      .block { border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; gap: 12px; }
-      .stat b { display: block; font-size: 22px; letter-spacing: -0.02em; }
+      .block { border: 1px solid var(--line); background: var(--raised); padding: 13px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+      .block.add { border-style: dashed; justify-content: center; color: var(--fg3); background: transparent; }
+      .stat b { display: block; font-size: 30px; font-weight: 400; letter-spacing: -0.04em; }
+      .kv { display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--line); }
+      .kv:last-child { border-bottom: 0; }
+      .plan.on { border-color: var(--fg); }
+      .plan .price { font-size: 30px; font-weight: 400; letter-spacing: -0.04em; margin: 8px 0 2px; }
+      .plan ul { margin: 14px 0 18px; padding: 0; list-style: none; display: grid; gap: 6px; color: var(--fg2); font-size: 13px; }
+      .plan li::before { content: "+"; font-family: var(--mono); color: var(--fg3); margin-right: 8px; }
+      .lose li::before { content: "−"; color: var(--red); }
+      /* Centered layouts: sign-in pages and email. */
+      .center { min-height: 100vh; display: grid; place-items: center; padding: 40px 20px; }
+      .auth { width: min(400px, 100%); }
+      .auth .brand { justify-content: center; padding-bottom: 26px; }
+      .auth h1 { font-size: 26px; text-align: center; }
+      .auth .sub { text-align: center; margin-bottom: 24px; }
+      .or { display: flex; align-items: center; gap: 12px; color: var(--fg3); font: 500 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; margin: 16px 0; }
+      .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+      .mail { width: min(600px, 100%); border: 1px solid var(--line); background: var(--panel); }
+      .mail-head { padding: 14px 18px; border-bottom: 1px solid var(--line); display: grid; gap: 2px; font-size: 13px; color: var(--fg2); }
+      .mail-head b { color: var(--fg); font-weight: 500; }
+      .mail-body { padding: 32px 36px 36px; display: grid; gap: 14px; }
+      .mail-body h1 { font-size: 24px; }
+      .avatar { width: 56px; height: 56px; border: 1px solid var(--line2); display: grid; place-items: center; font: 500 18px var(--mono); color: var(--fg2); }
       @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
     </style>
   </head>
-  <body>
-    <div class="app">
-      <aside class="side">
-        <div class="brand"><i></i>Fieldbook</div>
-        <div class="nav" data-nav="workspaces">Workspaces</div>
-        <div class="nav" data-nav="templates">Templates</div>
-        <div class="nav">Members</div>
-        <div class="nav">Settings</div>
-      </aside>
-      <main id="main"></main>
-    </div>
+  <body class="dots">
+    <div id="root"></div>
 
     <script>
       const q = new URLSearchParams(location.search)
@@ -83,42 +109,50 @@
         ["Customer interviews", "Live", "8 members"],
         ["Q4 planning", "Draft", "3 members"],
       ]
-      const head = (title, sub, actions = "") => `<div class="head"><div><h1>${title}</h1><p class="sub">${sub}</p></div><div class="row">${actions}</div></div>`
-      const field = (label, value) => `<div class="field"><label>${label}</label><div class="input">${value}</div></div>`
+      const head = (title, sub, actions = "", eyebrow = "") =>
+        `<div class="head"><div>${eyebrow ? `<span class="eyebrow">${eyebrow}</span>` : ""}<h1>${title}</h1><p class="sub">${sub}</p></div><div class="row">${actions}</div></div>`
+      const field = (label, value, cls = "") => `<div class="field"><label>${label}</label><div class="input ${cls}">${value}</div></div>`
+      const brand = '<div class="brand"><i></i>Fieldbook</div>'
+      const auth = (title, sub, body) => `<div class="center"><div class="auth">${brand}<h1>${title}</h1><p class="sub">${sub}</p><div class="card">${body}</div></div></div>`
+      const mail = (from, subject, body) => `<div class="center"><div class="mail"><div class="mail-head"><span>From <b>${from}</b></span><span>Subject <b>${subject}</b></span></div><div class="mail-body">${body}</div></div></div>`
+      const plan = (name, price, items, on, cta) =>
+        `<div class="card plan ${on ? "on" : ""}"><span class="eyebrow">${on ? "Current plan" : "Plan"}</span><div style="font-size:16px;font-weight:500;margin-top:4px">${name}</div><div class="price">${price}</div><span class="muted">per seat, per month</span><ul>${items.map((i) => `<li>${i}</li>`).join("")}</ul>${cta}</div>`
 
+      /* layout: "app" draws the sidebar; "bare" fills the page (sign-in pages, email). */
       const SCREENS = {
+        /* ─── Workspace ─── */
         workspaces: {
           nav: "workspaces",
           html() {
             const top = head("Workspaces", "Where your team collects and organises its work.", '<span class="btn primary">New workspace</span>')
             if (state === "empty") return top + '<div class="empty"><b>No workspaces yet</b><span class="muted">Create the first one to start collecting work.</span><span class="btn primary">New workspace</span></div>'
             if (state === "loading") return top + '<div class="list">' + [70, 55, 62].map((w) => `<div><span class="skeleton" style="width:${w}%"></span><span class="skeleton"></span><span class="skeleton"></span></div>`).join("") + "</div>"
-            return top + '<div class="list"><div><span>Name</span><span>Status</span><span>Members</span></div>' + rows.map(([n, s, m]) => `<div><b>${n}</b><span><span class="pill ${s === "Live" ? "green" : ""}">${s}</span></span><span class="muted">${m}</span></div>`).join("") + "</div>"
+            return top + '<div class="list"><div><span>Name</span><span>Status</span><span>Members</span></div>' + rows.map(([n, s, m]) => `<div><b style="font-weight:500">${n}</b><span><span class="pill ${s === "Live" ? "green" : ""}">${s}</span></span><span class="muted">${m}</span></div>`).join("") + "</div>"
           },
         },
         "new-workspace": {
           nav: "workspaces",
           html: () =>
-            head("New workspace", "A workspace always starts from a template.") +
-            '<div class="card" style="max-width:520px">' + field("Name", "Field research") + field("Region", "Europe (Frankfurt)") + field("Template", "Choose a template") +
-            '<p class="muted" style="margin:-6px 0 14px">No template yet? <b style="color:var(--blue)">Build one</b> and come back.</p><div class="row"><span class="btn primary off">Continue</span><span class="btn">Cancel</span></div></div>',
+            head("New workspace", "A workspace always starts from a template.", "", "workspaces / new") +
+            '<div class="card" style="max-width:520px">' + field("Name", "Field research") + field("Region", "Europe (Frankfurt)") + field("Template", "Choose a template", "ph") +
+            '<p class="muted" style="margin:-4px 0 16px">No template yet? <b style="color:var(--fg)">Build one</b> and come back.</p><div class="row"><span class="btn primary off">Continue</span><span class="btn">Cancel</span></div></div>',
         },
         templates: {
           nav: "templates",
           html: () =>
             head("Template gallery", "Start from one of these, or from a blank template.", '<span class="btn primary">Blank template</span>') +
-            '<div class="grid">' + [["Research log", "Sessions, findings, quotes"], ["Interview guide", "Script, notes, follow-ups"], ["Planning board", "Goals, bets, owners"]].map(([n, d]) => `<div class="card"><b>${n}</b><p class="muted">${d}</p><span class="pill blue">Use as a start</span></div>`).join("") + "</div>",
+            '<div class="grid">' + [["Research log", "Sessions, findings, quotes"], ["Interview guide", "Script, notes, follow-ups"], ["Planning board", "Goals, bets, owners"]].map(([n, d]) => `<div class="card"><b style="font-weight:500">${n}</b><p class="muted">${d}</p><span class="pill blue">Use as a start</span></div>`).join("") + "</div>",
         },
         "template-builder": {
           nav: "templates",
           html: () =>
             head("Template builder", "Sections, fields and defaults a new workspace starts with.", '<span class="btn">Preview</span><span class="btn primary">Save template</span>') +
-            '<div class="two"><div>' + ["Sessions", "Findings", "Quotes"].map((n) => `<div class="block"><b>${n}</b><span class="muted">4 fields</span></div>`).join("") + '<div class="block" style="border-style:dashed;justify-content:center;color:var(--fg3)">Add a section</div></div><div class="card">' + field("Template name", "Research log") + field("Default view", "Table") + "</div></div>",
+            '<div class="two"><div>' + ["Sessions", "Findings", "Quotes"].map((n) => `<div class="block"><b style="font-weight:500">${n}</b><span class="muted">4 fields</span></div>`).join("") + '<div class="block add">+ Add a section</div></div><div class="card">' + field("Template name", "Research log") + field("Default view", "Table") + "</div></div>",
         },
         overview: {
           nav: "workspaces",
           html: () =>
-            head("Field research", "Live · version 14 published 3 days ago", '<span class="btn primary">Edit workspace</span>') +
+            head("Field research", "Live · version 14 published 3 days ago", '<span class="btn primary">Edit workspace</span>', "workspace") +
             '<div class="grid" style="margin-bottom:16px">' + [["12", "Members"], ["248", "Entries this month"], ["31", "Saved links"]].map(([n, l]) => `<div class="card stat"><b>${n}</b><span class="muted">${l}</span></div>`).join("") +
             '</div><div class="banner amber">31 saved links point to sections of this workspace. Renaming or removing a section breaks them.</div>',
         },
@@ -134,28 +168,163 @@
           html() {
             const banner = state === "error" ? '<div class="banner red">Could not save. Your changes are still here: try again.</div>' : state === "unsaved" ? '<div class="banner amber">You have unsaved changes.</div>' : ""
             const save = state === "default" ? '<span class="btn off">Saved</span>' : state === "error" ? '<span class="btn primary">Retry save</span>' : '<span class="btn primary">Save</span>'
-            return head("Workspace editor", "Field research", save + '<span class="btn">Review and publish</span>') + banner +
-              '<div class="two"><div>' + [["Sessions", "Table"], ["Findings", "Board"], ["Quotes", "List"]].map(([n, v]) => `<div class="block"><b>${n}</b><span class="pill">${v}</span></div>`).join("") + '</div><div class="card">' + field("Section name", state === "default" ? "Findings" : "Insights") + field("View", "Board") + "</div></div>"
+            return head("Workspace editor", "Field research", save + '<span class="btn">Review and publish</span>', "editor") + banner +
+              '<div class="two"><div>' + [["Sessions", "Table"], ["Findings", "Board"], ["Quotes", "List"]].map(([n, v]) => `<div class="block"><b style="font-weight:500">${n}</b><span class="pill">${v}</span></div>`).join("") + '</div><div class="card">' + field("Section name", state === "default" ? "Findings" : "Insights") + field("View", "Board") + "</div></div>"
           },
         },
         publish: {
           nav: "workspaces",
           html: () =>
             head("Review and publish", "What members will see once this goes out.", '<span class="btn">Back to editor</span><span class="btn primary">Publish</span>') +
-            '<div class="card" style="max-width:620px">' + [["Sections", "3 (1 renamed)"], ["Members affected", "12"], ["Saved links", "31 need updating"]].map(([l, v]) => `<div class="block" style="border:0;border-bottom:1px solid var(--line);border-radius:0;padding-inline:0"><span>${l}</span><b>${v}</b></div>`).join("") + "</div>",
+            '<div class="card" style="max-width:620px">' + [["Sections", "3 (1 renamed)"], ["Members affected", "12"], ["Saved links", "31 need updating"]].map(([l, v]) => `<div class="kv"><span class="muted">${l}</span><b style="font-weight:500">${v}</b></div>`).join("") + "</div>",
         },
         live: {
           nav: "workspaces",
           html: () =>
-            head("Field research", "Live · version 15 published just now", '<span class="btn">Share</span>') +
-            '<div class="banner green">Published. Members see this version now.</div><div class="grid">' + ["Sessions", "Insights", "Quotes"].map((n) => `<div class="card"><b>${n}</b><p class="muted">Open section</p></div>`).join("") + "</div>",
+            head("Field research", "Live · version 15 published just now", '<span class="btn">Share</span>', "workspace") +
+            '<div class="banner green">Published. Members see this version now.</div><div class="grid">' + ["Sessions", "Insights", "Quotes"].map((n) => `<div class="card"><b style="font-weight:500">${n}</b><p class="muted">Open section</p></div>`).join("") + "</div>",
+        },
+
+        /* ─── Joining ─── */
+        "invite-email": {
+          layout: "bare",
+          html: () =>
+            mail("Maya Okafor via Fieldbook", "Join Field research on Fieldbook",
+              '<div class="avatar">MO</div><h1>Maya invited you to Field research</h1><p class="sub">12 people already collect sessions, findings and quotes there.</p><div><span class="btn primary">Accept invite</span></div><p class="muted">The invite works for 7 days and only for this email address.</p>'),
+        },
+        "accept-invite": {
+          layout: "bare",
+          html: () =>
+            state === "expired"
+              ? auth("This invite has expired", "Invites last 7 days. This one was sent on 2 November.", '<div class="banner amber">Ask Maya Okafor for a new invite.</div><span class="btn full off">Accept invite</span>')
+              : auth("Join Field research", "Maya Okafor invited you as an editor.", field("Email", "sam@northwind.example") + '<span class="btn primary full">Accept and continue</span>'),
+        },
+        "create-account": {
+          layout: "bare",
+          html: () => auth("Create your account", "One account for every Fieldbook workspace.", field("Email", "sam@northwind.example") + field("Password", "••••••••••••") + '<span class="btn primary full">Create account</span>'),
+        },
+        profile: {
+          layout: "bare",
+          html: () => auth("Set up your profile", "So people know who left a note.", '<div style="display:flex;justify-content:center;margin-bottom:16px"><div class="avatar">+</div></div>' + field("Name", "Sam Reyes") + field("Role", "Researcher") + '<span class="btn primary full">Continue</span>'),
+        },
+        "sign-in": {
+          layout: "bare",
+          html: () =>
+            auth("Sign in", "Welcome back to Fieldbook.",
+              (state === "error" ? '<div class="banner red">That password is not right. Try again or use a magic link.</div>' : "") +
+              field("Email", "sam@northwind.example") + field("Password", "••••••••", state === "error" ? "bad" : "") +
+              '<span class="btn primary full">Sign in</span><div class="or">or</div><span class="btn full">Email me a magic link</span>'),
+        },
+        sso: {
+          layout: "bare",
+          html: () =>
+            state === "unverified"
+              ? auth("Your domain is not verified", "northwind.example has not been verified by a Fieldbook admin yet.", '<div class="banner amber">Ask your workspace admin to verify the domain, then try again.</div><span class="btn full">Back to sign in</span>')
+              : auth("Sign in with SSO", "Use your company identity provider.", field("Work email", "sam@northwind.example") + '<span class="btn primary full">Continue with SSO</span>'),
+        },
+        "shared-link": {
+          layout: "bare",
+          html: () =>
+            mail("Priya Nair", "Findings from Tuesday",
+              '<h1>Here are the findings from Tuesday</h1><p class="sub">The three themes we talked about are in the board, with the quotes.</p><div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><span class="eyebrow">fieldbook.example/w/field-research</span><div style="font-weight:500">Findings · Field research</div></div><span class="btn">Open</span></div>'),
+        },
+        "access-wall": {
+          layout: "bare",
+          html: () => auth("You need access", "Findings · Field research is private to its members.", '<span class="btn primary full">Sign in to continue</span><p class="muted" style="text-align:center;margin:14px 0 0">Signed in already? You can request access next.</p>'),
+        },
+        "request-access": {
+          layout: "bare",
+          html: () =>
+            state === "sent"
+              ? auth("Request sent", "The admins of Field research have it. You will get an email when they decide.", '<div class="banner green">Requested a minute ago</div><span class="btn full">Back to Fieldbook</span>')
+              : state === "declined"
+                ? auth("Request declined", "An admin of Field research declined your request.", '<div class="banner red">You can ask again on 19 December.</div><span class="btn full">Back to Fieldbook</span>')
+                : auth("Request access", "To Field research, owned by Maya Okafor.", field("Message to the admins", "I work with Priya on the interview study.") + '<span class="btn primary full">Send request</span>'),
+        },
+        home: {
+          nav: "workspaces",
+          html() {
+            const banner =
+              state === "first" ? '<div class="banner green">Welcome to Field research. Start with the Findings board.</div>'
+              : state === "hold" ? '<div class="banner red">This workspace is read-only: the last payment failed. <span style="margin-left:auto" class="btn primary">Update card</span></div>'
+              : ""
+            return head("Field research", "12 members · updated 2 hours ago", state === "hold" ? '<span class="btn off">New entry</span>' : '<span class="btn primary">New entry</span>', "workspace home") + banner +
+              '<div class="grid">' + [["Sessions", "42 entries"], ["Findings", "17 entries"], ["Quotes", "128 entries"]].map(([n, c]) => `<div class="card"><b style="font-weight:500">${n}</b><p class="muted">${c}</p></div>`).join("") + "</div>"
+          },
+        },
+
+        /* ─── Billing ─── */
+        billing: {
+          nav: "billing",
+          html: () =>
+            head("Billing", "Team plan · 12 seats · renews on 1 December", '<span class="btn primary">Change plan</span>') +
+            '<div class="grid" style="margin-bottom:18px">' + [["$144", "Next invoice"], ["12 / 15", "Seats used"], ["•••• 4242", "Card on file"]].map(([n, l]) => `<div class="card stat"><b>${n}</b><span class="muted">${l}</span></div>`).join("") +
+            '</div><div class="list"><div><span>Invoice</span><span>Amount</span><span>Status</span></div>' + [["November 2026", "$144"], ["October 2026", "$132"], ["September 2026", "$132"]].map(([m, a]) => `<div><span>${m}</span><span class="muted">${a}</span><span><span class="pill green">Paid</span></span></div>`).join("") + "</div>",
+        },
+        plans: {
+          nav: "billing",
+          html: () =>
+            head("Compare plans", "Prices per seat. Changes apply today, prorated.", "", "billing / plans") +
+            '<div class="grid">' +
+            plan("Free", "$0", ["3 workspaces", "5 members", "30 days of history"], false, '<span class="btn full">Downgrade</span>') +
+            plan("Team", "$12", ["Unlimited workspaces", "15 members", "1 year of history"], true, '<span class="btn full off">Current</span>') +
+            plan("Business", "$24", ["SSO and verified domains", "Unlimited members", "Full history and audit log"], false, '<span class="btn primary full">Upgrade</span>') +
+            "</div>",
+        },
+        proration: {
+          nav: "billing",
+          html: () =>
+            head("Upgrade to Business", "You pay the difference for the rest of this month.", "", "billing / upgrade") +
+            '<div class="card" style="max-width:560px">' + [["Business, 12 seats", "$288 / month"], ["Unused Team time", "− $52.80"], ["Business until 1 December", "$105.60"]].map(([l, v]) => `<div class="kv"><span class="muted">${l}</span><span>${v}</span></div>`).join("") +
+            '<div class="kv"><b style="font-weight:500">Due today</b><b style="font-weight:500">$52.80</b></div><div class="row" style="margin-top:14px"><span class="btn primary">Continue to payment</span><span class="btn">Back</span></div></div>',
+        },
+        payment: {
+          nav: "billing",
+          html() {
+            const declined = state === "declined"
+            const card = state === "new" || declined
+              ? field("Card number", declined ? "4000 0000 0000 0002" : "4242 4242 4242 4242", declined ? "bad" : "") + '<div class="two" style="grid-template-columns:1fr 1fr">' + field("Expiry", "08 / 29") + field("CVC", "•••") + "</div>"
+              : '<div class="block"><span>Visa •••• 4242</span><span class="muted">expires 08/29</span></div><p class="muted" style="margin:6px 0 16px">Or <b style="color:var(--fg)">use a new card</b></p>'
+            return head("Payment details", "Charged $52.80 today, then $288 every month.", "", "billing / payment") +
+              (declined ? '<div class="banner red">Your bank declined the card. Try another one.</div>' : "") +
+              '<div class="card" style="max-width:520px">' + card + '<span class="btn primary">Pay $52.80</span></div>'
+          },
+        },
+        "plan-updated": {
+          nav: "billing",
+          html() {
+            const [title, sub] =
+              state === "down" ? ["You are on Free", "Team features stay on until 1 December."]
+              : state === "restored" ? ["Your workspace is back", "The payment went through. Everyone can edit again."]
+              : ["You are on Business", "SSO and verified domains are on now."]
+            return head(title, sub, '<span class="btn">Back to billing</span>', "billing") + `<div class="banner green">${state === "restored" ? "Paid $144 for November" : "Plan updated"}</div>` +
+              '<div class="card" style="max-width:520px">' + [["Next invoice", state === "down" ? "$0 on 1 December" : "$288 on 1 December"], ["Receipt", "Sent to billing@northwind.example"]].map(([l, v]) => `<div class="kv"><span class="muted">${l}</span><span>${v}</span></div>`).join("") + "</div>"
+          },
+        },
+        downgrade: {
+          nav: "billing",
+          html: () =>
+            head("Before you move to Free", "This is what Field research and two other workspaces lose.", "", "billing / downgrade") +
+            '<div class="card plan lose" style="max-width:560px"><span class="eyebrow">You lose</span><ul><li>9 of your 12 members, chosen by you</li><li>History older than 30 days</li><li>4 workspaces over the limit become read-only</li></ul><div class="row"><span class="btn primary">Move to Free</span><span class="btn">Keep Team</span></div></div>',
+        },
+        "failed-email": {
+          layout: "bare",
+          html: () =>
+            mail("Fieldbook Billing", "Your payment for November failed",
+              '<span class="pill red">Payment failed</span><h1>We could not charge your card</h1><p class="sub">The $144 renewal for Northwind was declined. Field research and 2 other workspaces are read-only until it is paid.</p><div><span class="btn primary">Update card</span></div><p class="muted">Nothing is deleted. Members can still read everything.</p>'),
         },
       }
 
-      const current = SCREENS[q.get("screen")] || SCREENS.workspaces
-      document.getElementById("main").innerHTML = current.html()
-      document.querySelector(`[data-nav="${current.nav}"]`)?.classList.add("on")
-      document.title = (q.get("screen") || "workspaces") + " · mock screen"
+      const name = q.get("screen") || "workspaces"
+      const current = SCREENS[name] || SCREENS.workspaces
+      const root = document.getElementById("root")
+      if (current.layout === "bare") {
+        root.innerHTML = current.html()
+      } else {
+        const nav = (id, label) => `<div class="nav${current.nav === id ? " on" : ""}">${label}</div>`
+        root.innerHTML = `<div class="app"><aside class="side">${brand}${nav("workspaces", "Workspaces")}${nav("templates", "Templates")}${nav("members", "Members")}<div class="label">Account</div>${nav("billing", "Billing")}${nav("settings", "Settings")}</aside><main>${current.html()}</main></div>`
+      }
+      document.title = name + " · mock screen"
     </script>
   </body>
 </html>

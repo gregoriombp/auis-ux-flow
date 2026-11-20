@@ -124,7 +124,7 @@ test("script and data URLs are never previewable", () => {
 
 test("the CLI passes on the demo folder", () => {
   const out = execFileSync("node", [validator, join(root, "docs")], { encoding: "utf8" })
-  assert.match(out, /1 flow, 0 errors, 0 warnings/)
+  assert.match(out, /3 flows, 0 errors, 0 warnings/)
 })
 
 test("the CLI fails, with exit code 1, on a broken folder", () => {
